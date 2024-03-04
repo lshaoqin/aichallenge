@@ -1,6 +1,17 @@
+import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.model_selection import train_test_split
+from textblob import TextBlob
+import numpy as np
+
+def add_desclength_col(df):
+    """
+    Add a column for the length of the description
+    """
+    df['DescriptionLength'] = df['Description'].str.split().str.len().fillna(0)
+    df['DescriptionLengthBins'] = pd.cut(df['DescriptionLength'], bins=[-1, 0, 22, 45, 82, np.inf], labels=['0', '1-21', '22-44', '45-81', '81+'])
+    return df
 
 def split_text_categorical(df):
     """
@@ -21,6 +32,13 @@ def split_text_categorical(df):
     x_cat = x.drop('Description', axis=1)
 
     return x_text, x_cat, y
+
+def split_train_test(x, y, test_size = 0.2):
+    """
+    Split the data into train and test sets
+    """
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = test_size)
+    return x_train, x_test, y_train, y_test
 
 def split_train_test_val(x, y, test_size = 0.2, val_size = 0.2):
     """
@@ -66,6 +84,36 @@ def one_hot_encode(x_train, x_test, x_val = None):
         return x_train_hot, x_test_hot, x_val_hot
     else:
         return x_train_hot, x_test_hot
+    
+def preprocess_text(df):
+    """
+    Preprocess the text data
+    """
+    def clean_text(text):
+        text = text.str.lower()
+        text = text.str.replace(r'[^a-z\s0-9]', '')
+        text = text.str.replace(r'\s+', ' ')
+        return text
+    
+    df['Description'] = clean_text(df['Description'])
+
+    return df
+
+def correct_spellings(df): # Slow!
+    """
+    Correct spelling errors in descriptions
+    """
+    def correct_spelling(text):
+        if pd.isnull(text):
+            return text
+        tb = TextBlob(text)
+        return str(tb.correct())
+    
+    df['Description'] = df['Description'].apply(correct_spelling)
+    return df
+
+
+
 
 
 

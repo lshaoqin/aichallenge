@@ -2,8 +2,11 @@ import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.model_selection import train_test_split
-from textblob import TextBlob
+from symspellpy import SymSpell
 import numpy as np
+import os
+import urllib
+import pkg_resources
 
 def read_df(file_path):
     """
@@ -106,16 +109,40 @@ def preprocess_text(df):
 
     return df
 
-def correct_spellings(df): # Slow!
+def correct_spellings(df):
     """
     Correct spelling errors in descriptions
     """
+    sym_spell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
+    
+    # Check if dictionary exists
+    if not os.path.isfile('frequency_dictionary_en_82_765.txt'):
+        url = 'https://raw.githubusercontent.com/mammothb/symspellpy/master/symspellpy/frequency_dictionary_en_82_765.txt'
+        filename = 'frequency_dictionary_en_82_765.txt'
+        urllib.request.urlretrieve(url, filename)
+    
+    if not os.path.isfile('frequency_bigramdictionary_en_243_342.txt'):
+        url = 'https://raw.githubusercontent.com/mammothb/symspellpy/master/symspellpy/frequency_bigramdictionary_en_243_342.txt'
+        filename = 'frequency_bigramdictionary_en_243_342.txt'
+        urllib.request.urlretrieve(url, filename)
+
+    sym_spell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
+    dictionary_path = pkg_resources.resource_filename(
+        "symspellpy", "frequency_dictionary_en_82_765.txt"
+    )
+    bigram_path = pkg_resources.resource_filename(
+        "symspellpy", "frequency_bigramdictionary_en_243_342.txt"
+    )
+
+    sym_spell.load_dictionary(dictionary_path, term_index=0, count_index=1)
+    sym_spell.load_bigram_dictionary(bigram_path, term_index=0, count_index=2)
+
     def correct_spelling(text):
         if pd.isnull(text):
             return text
-        tb = TextBlob(text)
-        return str(tb.correct())
-    
+        suggestions = sym_spell.lookup_compound(text, max_edit_distance=2)
+        return suggestions[0].term
+        
     df['Description'] = df['Description'].apply(correct_spelling)
     return df
 

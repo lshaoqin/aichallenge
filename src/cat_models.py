@@ -2,6 +2,7 @@ from sklearn.base import accuracy_score
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from read_yaml import read_yaml
 import dataprep
 import pickle
 
@@ -82,21 +83,54 @@ def load_model(filename):
     """
     return pickle.load(open(filename, 'rb'))
 
-def pipeline(df, model_type = "LOGISTIC_REGRESSION", save = True, filename = 'cat_model.pkl'):
+def main():
     """
     Main function for shell script
     """
+    config = read_yaml("../config.yaml")
+
+    if not config['train_cat_model']:
+        return
+    
+    df_name = config['df_name']
+    model_type = config['cat_model']
+    save = config['save_model']
+    filename = config['cat_model_filename']
+
+    df = dataprep.load_data(df_name)
     x_text, x_cat, y = dataprep.preprocess_data(df)
     x_train, x_test, y_train, y_test = dataprep.split_train_test(x_cat, y)
 
     if model_type == "LOGISTIC_REGRESSION":
         model = logistic_regression(x_train, y_train)
+
     elif model_type == "GRADIENT_BOOSTING":
-        model = gradient_boosting(x_train, y_train)
+        params = config['GRADIENT_BOOSTING']
+        learning_rate = params['learning_rate']
+        n_estimators = params['n_estimators']
+        min_samples_split = params['min_samples_split']
+        min_samples_leaf = params['min_samples_leaf']
+        max_depth = params['max_depth']
+        max_features = params['max_features']
+        model = gradient_boosting(x_train, y_train, learning_rate, n_estimators, min_samples_split, min_samples_leaf, max_depth, max_features)
+
     elif model_type == "RANDOM_FOREST":
-        model = random_forest(x_train, y_train)
+        params = config['RANDOM_FOREST']
+        n_estimators = params['n_estimators']
+        max_depth = params['max_depth']
+        min_samples_split = params['min_samples_split']
+        min_samples_leaf = params['min_samples_leaf']
+        max_features = params['max_features']
+        model = random_forest(x_train, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features)
+    
     elif model_type == "DECISION_TREE":
-        model = decision_tree(x_train, y_train)
+        params = config['DECISION_TREE']
+        max_depth = params['max_depth']
+        min_samples_split = params['min_samples_split']
+        min_samples_leaf = params['min_samples_leaf']
+        max_features = params['max_features']
+        model = decision_tree(x_train, y_train, max_depth, min_samples_split, min_samples_leaf, max_features)
+    
     elif model_type == "LINEAR_REGRESSION":
         model = linear_regression(x_train, y_train)
 
@@ -109,3 +143,6 @@ def pipeline(df, model_type = "LOGISTIC_REGRESSION", save = True, filename = 'ca
         print(f"Model saved to {filename}")
 
     return model
+
+if __name__ == "__main__":
+    main()

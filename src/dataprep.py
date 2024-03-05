@@ -5,6 +5,13 @@ from sklearn.model_selection import train_test_split
 from textblob import TextBlob
 import numpy as np
 
+def read_df(file_path):
+    """
+    Read a dataframe from a file
+    """
+    df = pd.read_csv(file_path)
+    return df
+
 def add_desclength_col(df):
     """
     Add a column for the length of the description

@@ -15,7 +15,7 @@ network.
 max_features = 10000
 sequence_length = 1000
 
-def train_LSTM_NN(x_train, y_train, x_val, y_val, learning_rate = 0.0002, epochs = 10):
+def train_LSTM_NN(x_train, y_train, x_val, y_val, learning_rate = 0.0001, epochs = 25):
 
     model = Sequential([
         Input(shape=(sequence_length,)),
@@ -35,7 +35,7 @@ def train_LSTM_NN(x_train, y_train, x_val, y_val, learning_rate = 0.0002, epochs
     model.fit(x_train, y_train, epochs=epochs, validation_data=(x_val, y_val), callbacks=[callback])
     return model
     
-def train_CNN(x_train, y_train, x_val, y_val, learning_rate = 0.0002, epochs = 10):
+def train_CNN(x_train, y_train, x_val, y_val, learning_rate = 0.0001, epochs = 25):
 
     model = Sequential([
         Input(shape=(sequence_length,)),
@@ -55,7 +55,7 @@ def train_CNN(x_train, y_train, x_val, y_val, learning_rate = 0.0002, epochs = 1
     return model
 
 
-def pipeline(df, model = "CNN", correct_spellings = True, save = False, filename = 'text_model.pkl'):
+def pipeline(df, model = "CNN", correct_spellings = True, save = True, filename = 'text_model.pkl'):
     """
     Preprocess the data and train the model
     """

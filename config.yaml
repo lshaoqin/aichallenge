@@ -1,0 +1,42 @@
+---
+train_cat_model: true
+model_type: 'LOGISTIC_REGRESSION' # 'LOGISTIC_REGRESSION', 'GRADIENT BOOSTING', 'RANDOM_FOREST', 'DECISION_TREE', 'LINEAR_REGRESSION'
+
+GRADIENT_BOOSTING:
+  learning_rate: 0.1
+  n_estimators: 100
+  min_samples_split: 2
+  min_samples_leaf: 1
+  max_depth: 3
+  max_features: 'auto'
+
+RANDOM_FOREST:
+  n_estimators: 100
+  max_depth: None
+  min_samples_split: 2
+  min_samples_leaf: 1
+  max_features: 'auto'
+
+DECISION_TREE:
+  max_depth: None
+  min_samples_split: 2
+  min_samples_leaf: 1
+  max_features: None
+
+save_cat_model: true
+cat_model_filename: 'cat_model.pkl'
+
+train_text_model: true
+text_model_type: 'CNN' # 'CNN', 'LSTM'
+
+CNN:
+  learning_rate: 0.0001
+  epochs: 25
+
+LSTM:
+  learning_rate: 0.0001
+  epochs: 25
+
+save_text_model: true
+text_model_filename: 'text_model.h5'
+```

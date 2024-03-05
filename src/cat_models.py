@@ -82,7 +82,7 @@ def load_model(filename):
     """
     return pickle.load(open(filename, 'rb'))
 
-def pipeline(df, model_type = "LOGISTIC_REGRESSION", save = False, filename = 'cat_model.pkl'):
+def pipeline(df, model_type = "LOGISTIC_REGRESSION", save = True, filename = 'cat_model.pkl'):
     """
     Main function for shell script
     """

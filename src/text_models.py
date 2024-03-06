@@ -8,7 +8,7 @@ from read_yaml import read_yaml
 import dataprep
 
 """
-Neural networks have way more parameters, so there are limited customisation
+Neural networks have way more parameters, so I have provided limited customisation
 options. Users can modify the code directly to change the architecture of the
 network.
 """
@@ -21,7 +21,7 @@ def train_LSTM_NN(x_train, y_train, x_val, y_val, learning_rate = 0.0001, epochs
     model = Sequential([
         Input(shape=(sequence_length,)),
         Embedding(max_features, 64, input_length=sequence_length),
-        LSTM(64, return_sequences=True, dropout=0.5, recurrent_dropout=0.5),
+        LSTM(64, return_sequences=True, dropout=0.2, recurrent_dropout=0.2),
         Flatten(),
         Dense(64, activation='relu', kernel_regularizer=l2(0.001)),
         Dropout(0.2),
@@ -40,7 +40,7 @@ def train_CNN(x_train, y_train, x_val, y_val, learning_rate = 0.0001, epochs = 2
 
     model = Sequential([
         Input(shape=(sequence_length,)),
-        Embedding(max_features, 64, input_length=sequence_length),
+        Embedding(max_features, 64),
         Conv1D(128, 5, activation='relu'),
         GlobalMaxPooling1D(),
         Dense(64, activation='relu'),
@@ -60,19 +60,18 @@ def main():
     """
     Preprocess the data and train the model
     """
-    config = read_yaml("../config.yaml")
+    config = read_yaml("config.yaml")
 
     if not config['train_text_model']:
         return
     
     df_name = config['df_name']
-    model = config['text_model']
+    model = config['text_model_type']
     correct_spellings = config['correct_spellings']
-    save = config['save_model']
+    save = config['save_text_model']
     filename = config['text_model_filename']
 
-    df = dataprep.load_data(df_name)
-
+    df = dataprep.read_df(df_name)
     x_text, x_cat, y = dataprep.split_text_categorical(df)
     x_text = dataprep.preprocess_text(x_text)
 
@@ -82,7 +81,7 @@ def main():
         output_sequence_length=sequence_length
     )
 
-    vectorize_layer.adapt(x_text['Description'])
+    vectorize_layer.adapt(x_text)
 
     x_train, x_test, x_val, y_train, y_test, y_val = dataprep.split_train_test_val(x_text, y)
 
@@ -92,6 +91,7 @@ def main():
     X_val = vectorize_layer(x_val)
 
     if correct_spellings:
+        print("Correcting spellings - this may take a while")
         x_text = dataprep.correct_spellings(x_text)
     if model == "LSTM":
         params = config['LSTM']

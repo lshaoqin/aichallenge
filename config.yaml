@@ -14,22 +14,23 @@ GRADIENT_BOOSTING:
 
 RANDOM_FOREST:
   n_estimators: 100
-  max_depth: None
+  max_depth: null
   min_samples_split: 2
   min_samples_leaf: 1
   max_features: 'auto'
 
 DECISION_TREE:
-  max_depth: None
+  max_depth: null
   min_samples_split: 2
   min_samples_leaf: 1
-  max_features: None
+  max_features: null
 
 save_cat_model: true
 cat_model_filename: 'cat_model.pkl'
 
 train_text_model: true
 text_model_type: 'CNN' # 'CNN', 'LSTM'
+correct_spellings: true
 
 CNN:
   learning_rate: 0.0001
@@ -40,5 +41,4 @@ LSTM:
   epochs: 25
 
 save_text_model: true
-text_model_filename: 'text_model.h5'
-```
+text_model_filename: 'text_model.keras'

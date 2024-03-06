@@ -47,15 +47,15 @@ def split_train_test(x, y, test_size = 0.2):
     """
     Split the data into train and test sets
     """
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = test_size)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = test_size, random_state = 42)
     return x_train, x_test, y_train, y_test
 
 def split_train_test_val(x, y, test_size = 0.2, val_size = 0.2):
     """
     Split the data into train, test and validation sets
     """
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = test_size)
-    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size = val_size)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = test_size, random_state = 42)
+    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size = val_size, random_state = 42)
 
     return x_train, x_test, x_val, y_train, y_test, y_val
 
@@ -95,21 +95,21 @@ def one_hot_encode(x_train, x_test, x_val = None):
     else:
         return x_train_hot, x_test_hot
     
-def preprocess_text(df):
+def preprocess_text(series):
     """
     Preprocess the text data
     """
     def clean_text(text):
-        text = text.str.lower()
-        text = text.str.replace(r'[^a-z\s0-9]', '')
-        text = text.str.replace(r'\s+', ' ')
+        text = str(text).lower()
+        text = text.replace(r'[^a-z\s0-9]', '')
+        text = text.replace(r'\s+', ' ')
         return text
     
-    df['Description'] = clean_text(df['Description'])
+    series = series.apply(clean_text)
+    
+    return series
 
-    return df
-
-def correct_spellings(df):
+def correct_spellings(series):
     """
     Correct spelling errors in descriptions
     """
@@ -143,8 +143,8 @@ def correct_spellings(df):
         suggestions = sym_spell.lookup_compound(text, max_edit_distance=2)
         return suggestions[0].term
         
-    df['Description'] = df['Description'].apply(correct_spelling)
-    return df
+    series = series.apply(correct_spelling)
+    return series
 
 
 

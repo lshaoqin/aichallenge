@@ -3,9 +3,13 @@ Submission for the National AI Student Challenge Track 1: AI Professionals Assoc
 ---
 This project works on the [PetFinder.my Adoption Prediction Dataset](https://www.kaggle.com/c/petfinder-adoption-prediction/data) and consists of the following parts:
 - Exploratory Data Analysis (EDA) of the dataset at eda.ipynb
-- Code to train a classification model using the categorical columns in the dataset
-- Code to train a neural network using the description column in the dataset
-- A pipeline and configuration file to run the code
+- Code to train a classification model using the categorical columns in the dataset (src/cat_models.py)
+- Code to train a neural network using the description column in the dataset (src/text_models.py)
+- Methods for dataset preprocessing (src/dataprep.py), yaml processing(src/read_yaml.py) and model predictions (src/predictions.py)
+- A pipeline(run.sh) and configuration file(config.yaml) to run the code
+- A pretrained gradient boosting model (saved_models/cat_model.pkl) and a pretrained CNN model (saved_models/text_model.keras) for the dataset
+
+eda.ipynb was primarily run on Windows Python 3.9.9 and the pipeline was run on Ubuntu 22.04.3 LTS on Python 3.10.6. Due to a lack of foresight and experience, the requirements.txt file was generated for the pipeline, and some parts of the EDA may not run with the same package versions.
 
 ## Quickstart
 1. Create a virtual environment
@@ -66,3 +70,10 @@ copy the contents of `config.yaml.default` into `config.yaml`. Do not edit `conf
 - `predictions`: Whether to predict the adoption speed of the pets in the dataset using the trained models
 - `predictions_filename`: The path to the dataset to make predictions on
 - `predictions_output_filename`: The path to save the predictions to. The script will output the original dataset with the predictions appended as new columns
+
+## Choice/evaluation of models
+The gradient boosting model was chosen for its accuracy (0.416) against the other models. Gradient boosting tends to perform well on tabular data which fits our dataset, and it is a strong choice which has won many competitions. I think further tuning of the hyperparameters could even further increase the accuracy of the model.
+
+The CNN model was chosen for both its accuracy (0.374) and speed over the LSTM model. I suspect that this may be because of insufficient tuning of the LSTM model however, since LSTM models are known to perform well on text data. Nevertheless, the CNN model as of now trains at a much faster rate and achieves better accuracy too. This makes sense because the convolution layer can capture features in the text data which means more data is extracted for the later layers to work on.
+
+It was a pity I couldn't successfully combine the predictions of the two models, as they yielded worse results when combined than when used individually. However, I think there is some merit to keeping the models separate especially as the CNN model can serve as a benchmark highlighting that a certain description could potentially be improved. The gradient boosting model can then be used for recommendation, including to identify which pets may need to be displayed to users more to get adopted.

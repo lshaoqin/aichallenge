@@ -69,6 +69,7 @@ def evaluate_model(model, X_test, y_test):
     Evaluate the model
     """
     y_pred = model.predict(X_test)
+    y_pred = [int(y) for y in y_pred]
     return accuracy_score(y_test, y_pred)
 
 def save_model(model, filename):
@@ -115,7 +116,15 @@ def main():
         min_samples_leaf = params['min_samples_leaf']
         max_depth = params['max_depth']
         max_features = params['max_features']
-        model = gradient_boosting(x_train, y_train, learning_rate, n_estimators, min_samples_split, min_samples_leaf, max_depth, max_features)
+        model = gradient_boosting(
+            x_train, 
+            y_train, 
+            learning_rate=learning_rate, 
+            n_estimators=n_estimators, 
+            min_samples_split=min_samples_split, 
+            min_samples_leaf=min_samples_leaf, 
+            max_depth=max_depth, 
+            max_features=max_features)
 
     elif model_type == "RANDOM_FOREST":
         x_train, x_test = dataprep.ordinal_encode(x_train, x_test)
@@ -125,7 +134,14 @@ def main():
         min_samples_split = params['min_samples_split']
         min_samples_leaf = params['min_samples_leaf']
         max_features = params['max_features']
-        model = random_forest(x_train, y_train, n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features)
+        model = random_forest(
+            x_train, 
+            y_train, 
+            n_estimators=n_estimators, 
+            max_depth=max_depth, 
+            min_samples_split=min_samples_split, 
+            min_samples_leaf=min_samples_leaf, 
+            max_features=max_features)
     
     elif model_type == "DECISION_TREE":
         x_train, x_test = dataprep.ordinal_encode(x_train, x_test)
@@ -134,7 +150,13 @@ def main():
         min_samples_split = params['min_samples_split']
         min_samples_leaf = params['min_samples_leaf']
         max_features = params['max_features']
-        model = decision_tree(x_train, y_train, max_depth, min_samples_split, min_samples_leaf, max_features)
+        model = decision_tree(
+            x_train, 
+            y_train, 
+            max_depth=max_depth, 
+            min_samples_split=min_samples_split, 
+            min_samples_leaf=min_samples_leaf, 
+            max_features=max_features)
     
     elif model_type == "LINEAR_REGRESSION":
         x_train, x_test = dataprep.one_hot_encode(x_train, x_test)

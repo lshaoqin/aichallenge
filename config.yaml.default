@@ -1,0 +1,49 @@
+---
+df_name: 'pets_prepared.csv'
+
+train_cat_model: true
+cat_model_type: 'GRADIENT_BOOSTING' # 'LOGISTIC_REGRESSION', 'GRADIENT BOOSTING', 'RANDOM_FOREST', 'DECISION_TREE', 'LINEAR_REGRESSION'
+
+GRADIENT_BOOSTING:
+  learning_rate: 0.1
+  n_estimators: 100
+  min_samples_split: 2
+  min_samples_leaf: 1
+  max_depth: 3
+  max_features: 'sqrt'
+
+RANDOM_FOREST:
+  n_estimators: 100
+  max_depth: null
+  min_samples_split: 2
+  min_samples_leaf: 1
+  max_features: 'sqrt'
+
+DECISION_TREE:
+  max_depth: null
+  min_samples_split: 2
+  min_samples_leaf: 1
+  max_features: null
+
+save_cat_model: true
+cat_model_filename: 'cat_model.pkl'
+
+train_text_model: true
+text_model_type: 'CNN' # 'CNN', 'LSTM'
+correct_spellings: true
+
+CNN:
+  learning_rate: 0.0001
+  epochs: 25
+
+LSTM:
+  learning_rate: 0.0001
+  epochs: 25
+
+save_text_model: true
+text_model_filename: 'text_model.keras'
+
+predictions: true
+predictions_filename: 'pets_prepared.csv'
+predictions_output_filename: 'predictions.csv'
+

@@ -1,9 +1,11 @@
+import tensorflow
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Input, Embedding, LSTM, Dense, Flatten, Conv1D, GlobalMaxPooling1D, TextVectorization
+from tensorflow.keras.layers import Embedding, LSTM, Dense, Flatten, Conv1D, GlobalMaxPooling1D, TextVectorization, Input, GlobalAveragePooling1D
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
 from keras.regularizers import l2
 from keras.layers import Dropout
+from keras.saving import load_model
 from read_yaml import read_yaml
 import dataprep
 
@@ -16,18 +18,17 @@ network.
 max_features = 10000
 sequence_length = 1000
 
-def train_LSTM_NN(x_train, y_train, x_val, y_val, learning_rate = 0.0001, epochs = 25):
+def train_LSTM_NN(x_train, y_train, x_val, y_val, vectorize_layer, learning_rate = 0.0001, epochs = 25):
 
     model = Sequential([
-        Input(shape=(sequence_length,)),
-        Embedding(max_features, 64, input_length=sequence_length),
-        LSTM(64, return_sequences=True, dropout=0.2, recurrent_dropout=0.2),
-        Flatten(),
-        Dense(64, activation='relu', kernel_regularizer=l2(0.001)),
-        Dropout(0.2),
+        vectorize_layer,
+        Embedding(max_features, 64),
+        Conv1D(128, 5, activation='relu'),
+        LSTM(64, return_sequences=True),
+        GlobalAveragePooling1D(),
+        Dense(64, activation='relu'),
         Dense(5, activation='softmax')
     ])
-    
     callback = EarlyStopping(monitor='val_loss', patience=3)
     model.compile(optimizer=Adam(learning_rate=learning_rate),
                   loss='sparse_categorical_crossentropy',
@@ -36,10 +37,10 @@ def train_LSTM_NN(x_train, y_train, x_val, y_val, learning_rate = 0.0001, epochs
     model.fit(x_train, y_train, epochs=epochs, validation_data=(x_val, y_val), callbacks=[callback])
     return model
     
-def train_CNN(x_train, y_train, x_val, y_val, learning_rate = 0.0001, epochs = 25):
+def train_CNN(x_train, y_train, x_val, y_val, vectorize_layer, learning_rate = 0.0001, epochs = 25):
 
     model = Sequential([
-        Input(shape=(sequence_length,)),
+        vectorize_layer,
         Embedding(max_features, 64),
         Conv1D(128, 5, activation='relu'),
         GlobalMaxPooling1D(),
@@ -55,6 +56,19 @@ def train_CNN(x_train, y_train, x_val, y_val, learning_rate = 0.0001, epochs = 2
     model.fit(x_train, y_train, epochs=epochs, validation_data=(x_val, y_val), callbacks=[callback])
     return model
 
+def save_model(model, filename):
+    """
+    Save the model to a file
+    """
+    model.save(filename)
+    print(f"Model saved to {filename}")
+
+def load_model(filename):
+    """
+    Load the model from a file
+    """
+    model = tensorflow.keras.models.load_model(filename)
+    return model
 
 def main():
     """
@@ -78,17 +92,12 @@ def main():
     vectorize_layer = TextVectorization(
         max_tokens=max_features,
         output_mode='int',
-        output_sequence_length=sequence_length
+        output_sequence_length=sequence_length,
     )
 
     vectorize_layer.adapt(x_text)
 
     x_train, x_test, x_val, y_train, y_test, y_val = dataprep.split_train_test_val(x_text, y)
-
-    # Apply the vectorization layer to the text data
-    X_train = vectorize_layer(x_train)
-    X_test = vectorize_layer(x_test)
-    X_val = vectorize_layer(x_val)
 
     if correct_spellings:
         print("Correcting spellings - this may take a while")
@@ -97,20 +106,19 @@ def main():
         params = config['LSTM']
         learning_rate = params['learning_rate']
         epochs = params['epochs']
-        model = train_LSTM_NN(X_train, y_train, X_val, y_val, learning_rate, epochs)
+        model = train_LSTM_NN(x_train, y_train, x_val, y_val, vectorize_layer, learning_rate, epochs)
     elif model == "CNN":
         params = config['CNN']
         learning_rate = params['learning_rate']
         epochs = params['epochs']
-        model = train_CNN(X_train, y_train, X_val, y_val, learning_rate, epochs)
+        model = train_CNN(x_train, y_train, x_val, y_val, vectorize_layer, learning_rate, epochs)
 
     # Evaluate the model
-    accuracy = model.evaluate(X_test, y_test)
+    accuracy = model.evaluate(x_test, y_test)
     print(f"{model} accuracy: {accuracy}")
 
     if save:
-        model.save(filename)
-        print(f"Model saved to {filename}")
+        save_model(model, filename)
 
     return model
 

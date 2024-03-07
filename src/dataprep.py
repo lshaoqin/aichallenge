@@ -23,12 +23,15 @@ def add_desclength_col(df):
     df['DescriptionLengthBins'] = pd.cut(df['DescriptionLength'], bins=[-1, 0, 22, 45, 82, np.inf], labels=['0', '1-21', '22-44', '45-81', '81+'])
     return df
 
-def split_text_categorical(df):
+def split_text_categorical(df, has_y = True):
     """
     Split the columns into text and categorical columns, 
     dropping unwanted columms
     """
-    y = df['AdoptionSpeed']
+    if has_y:
+        y = df['AdoptionSpeed']
+    else:
+        y = None
 
     # Column 32 onwards are all derived values or labels which have already been encoded
     # We will keep BreedPure, ColorAmt and NameorNO though because the information may be lost when we remove the original columns
@@ -76,6 +79,15 @@ def ordinal_encode(x_train, x_test, x_val = None):
         return x_train_ord, x_test_ord, x_val_ord
     else:
         return x_train_ord, x_test_ord
+    
+def ordinal_encode_one(x):
+    """
+    Ordinal encode a single df
+    """
+    x = x.copy()
+    oe = OrdinalEncoder()
+    x = oe.fit_transform(x)
+    return x
 
 def one_hot_encode(x_train, x_test, x_val = None):
     """
@@ -94,6 +106,15 @@ def one_hot_encode(x_train, x_test, x_val = None):
         return x_train_hot, x_test_hot, x_val_hot
     else:
         return x_train_hot, x_test_hot
+    
+def one_hot_encode_one(x):
+    """
+    One hot encode a single df
+    """
+    x = x.copy()
+    ohe = OneHotEncoder()
+    x = ohe.fit_transform(x)
+    return x
     
 def preprocess_text(series):
     """

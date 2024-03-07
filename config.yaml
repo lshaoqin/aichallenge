@@ -29,7 +29,7 @@ save_cat_model: true
 cat_model_filename: 'cat_model.pkl'
 
 train_text_model: true
-text_model_type: 'LSTM' # 'CNN', 'LSTM'
+text_model_type: 'CNN' # 'CNN', 'LSTM'
 correct_spellings: true
 
 CNN:

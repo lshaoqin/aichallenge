@@ -30,7 +30,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Insert the dataset as `pets_preapred.csv` to the root folder.
+4. Insert the dataset as `pets_preapred.csv` to the root folder. The other files are not required.
 
 5. The code in the `eda.ipynb` file can now be run!
 
